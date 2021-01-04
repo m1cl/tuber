@@ -1,0 +1,21 @@
+[package]
+name = "tuber"
+version = "0.1.0"
+authors = ["m1cl <michael_ajala@yahoo.de>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+#[features] <-- might be important for svgs 
+#canvas = []
+
+[dependencies]
+reqwest = { version = "0.10", features = ["blocking", "json"] }
+iced = {features = ["glow", "svg", "debug", "async-std"]}
+tokio = {version = "1.0.0", features = ["full"]}
+iced_futures = "0.2.0"
+iced_native = "0.3.0"
+yup-oauth2 = "5.0.1"
+web-view = "0.7.2"
+hyper = "0.14.2"
+futures-util = "0.3.8"
