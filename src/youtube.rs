@@ -1,6 +1,11 @@
 // use web_view::*;
+use scraper::{Html, Selector};
 use std::future::Future;
+use std::io::Write;
 use std::pin::Pin;
+use ureq;
+use web_view::*;
+use youtube_dl::YoutubeDl;
 use yup_oauth2::authenticator_delegate::{DefaultInstalledFlowDelegate, InstalledFlowDelegate};
 use yup_oauth2::{AccessToken, InstalledFlowAuthenticator, InstalledFlowReturnMethod};
 
@@ -52,6 +57,11 @@ impl InstalledFlowDelegate for InstalledFlowBrowserDelegate {
 }
 impl Youtube {
     pub async fn auth() -> AccessToken {
+        let aha = YoutubeDl::new("https://www.youtube.com/watch?v=S-Epax08BX4")
+            .socket_timeout("15")
+            .run()
+            .unwrap();
+        println!("{:?}", aha);
         let secret = yup_oauth2::read_application_secret("clientsecret.json")
             .await
             .expect("clientsecret.json not found");
@@ -75,10 +85,43 @@ impl Youtube {
         };
         token
     }
-
-    // fn get_playlists(&self) -> Playlists {
-    //     self.playlists
+    // pub async fn get_playlists() -> Result<(), Box<dyn std::error::Error>> {
+    //     let resp = reqwest::get("https://www.youtube.com/")
+    //         .await?
+    //         .json::<HashMap<String, String>>()
+    //         .await?;
+    //     println!("{:#?}", resp);
+    //     Ok(())
     // }
+
+    fn open_webview(url: &str) {
+        web_view::builder()
+            .title("My Project")
+            .content(Content::Url(url))
+            .size(1024, 786)
+            .resizable(true)
+            .debug(true)
+            .user_data(())
+            .invoke_handler(|webview, _arg| {
+               let lol = webview
+                    .eval("document.getElementsByTagName('body')[0].innerHTML ='' ")
+                    .unwrap();
+                println!("LOL, {:?}", lol);
+                Ok(())
+            })
+            .run()
+            .unwrap();
+
+    }
+    pub async fn get_playlists() -> Result<(), ureq::Error> {
+        let url = "https://youtube.com/user/twipzy/playlists";
+        // let res: String = ureq::get(url).call()?.into_string()?;
+        // let html = Html::parse_document(&res);
+        // let mut file = std::fs::File::create("data.txt").expect("failed to create file");
+        // file.write_all(res.as_bytes())
+        //     .expect("could add content into file");
+        Ok(())
+    }
     fn create_playlist_url(playlist_id: String) {
         let url = format!("https://youtube.com/:path+{}", playlist_id);
         println!("this should get the id from the playlistitem and create a link to that playlist, so we can use youtube-dl to download it");
